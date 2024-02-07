@@ -1,0 +1,83 @@
+#EJERCICIO 1 - DATOS EDUCACIÓN
+
+SELECT *
+FROM datos_educativos
+
+#CONVERTIR LOS VALORES "0" A NULL
+DO $$ 
+DECLARE 
+    columna_nombre TEXT;
+    query TEXT;
+    columna_a_omitir TEXT := 'country';
+BEGIN 
+    FOR columna_nombre IN (SELECT column_name FROM information_schema.columns WHERE table_name = 'datos_educativos' AND column_name <> columna_a_omitir) 
+    LOOP 
+        query := 'UPDATE datos_educativos SET ' || columna_nombre || ' = NULL WHERE ' || columna_nombre || ' = ''0'''; 
+        EXECUTE query; 
+    END LOOP; 
+END $$;
+
+
+#CONVERTIR LOS NULL A EL PROMEDIO DE LA COLUMNA
+DO $$ 
+DECLARE 
+    columna_nombre TEXT;
+    query TEXT;
+    columna_a_omitir TEXT := 'country';
+BEGIN 
+    FOR columna_nombre IN (SELECT column_name FROM information_schema.columns WHERE table_name = 'datos_educativos' AND column_name <> columna_a_omitir) 
+    LOOP 
+        query := 'UPDATE datos_educativos 
+                  SET ' || columna_nombre || ' = COALESCE(' || columna_nombre || ', (SELECT AVG(' || columna_nombre || ') FROM datos_educativos))'; 
+        EXECUTE query; 
+    END LOOP; 
+END $$;
+
+
+#TABLA CON DATOS HOMBRES
+CREATE TABLE datos_hombres AS
+SELECT country, oosr_pre0primary_age_male, oosr_primary_age_male, 
+oosr_lower_secondary_age_male, oosr_upper_secondary_age_male,
+completion_rate_primary_male, completion_rate_lower_secondary_male,
+completion_rate_upper_secondary_male, youth_15_24_literacy_rate_male
+FROM datos_educativos;
+
+#TABLA CON DATOS MUJERES
+CREATE TABLE datos_mujeres AS
+SELECT country, oosr_pre0primary_age_female, oosr_primary_age_female, 
+oosr_lower_secondary_age_female, oosr_upper_secondary_age_female,
+completion_rate_primary_female, completion_rate_lower_secondary_female,
+completion_rate_upper_secondary_female, youth_15_24_literacy_rate_female
+FROM datos_educativos;
+
+
+#ESTABLECER LLAVE PRIMARIA EN ESTE CASO SERÁ "COUNTRY"
+ALTER TABLE tabla_X
+ADD PRIMARY KEY (country);
+
+#ESTADISTICA BASICA
+
+SELECT AVG(birth_rate) AS promedio
+   FROM datos_educativos;
+
+SELECT MIN(birth_rate) AS minimo, MAX(birth_rate) AS maximo
+   FROM datos_educativos;
+
+#Varianza y desviación e.
+
+SELECT
+      STDDEV(oosr_primary_age_male) AS desviacion_estandar,
+      VARIANCE(oosr_primary_age_male) AS varianza
+   FROM datos_educativos;
+
+
+#CONSULTAS
+
+#Para saber a que pais corresponde el minimo y maximo en las tasas de natalidad:
+
+SELECT
+    (SELECT country FROM datos_educativos WHERE birth_rate = (SELECT MIN(birth_rate) FROM datos_educativos)) AS pais_minimo,
+	MIN(birth_rate) AS minimo,
+    (SELECT country FROM datos_educativos WHERE birth_rate = (SELECT MAX(birth_rate) FROM datos_educativos)) AS pais_maximo,
+    MAX(birth_rate) AS maximo
+FROM datos_educativos;

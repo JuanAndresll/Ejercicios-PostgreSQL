@@ -1,0 +1,11 @@
+
+#CONSULTAS
+
+#Para saber a que pais corresponde el minimo y maximo en las tasas de natalidad:
+
+SELECT
+    (SELECT country FROM datos_educativos WHERE birth_rate = (SELECT MIN(birth_rate) FROM datos_educativos)) AS pais_minimo,
+	MIN(birth_rate) AS minimo,
+    (SELECT country FROM datos_educativos WHERE birth_rate = (SELECT MAX(birth_rate) FROM datos_educativos)) AS pais_maximo,
+    MAX(birth_rate) AS maximo
+FROM datos_educativos;

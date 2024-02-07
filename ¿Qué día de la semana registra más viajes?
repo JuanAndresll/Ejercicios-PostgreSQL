@@ -1,0 +1,4 @@
+SELECT day_of_week, count(ride_id)
+FROM rides
+group by 1
+order by 2 desc

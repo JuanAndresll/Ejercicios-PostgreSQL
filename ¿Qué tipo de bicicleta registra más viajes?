@@ -1,0 +1,5 @@
+#Consulta de que tipo de bicicletas registra más viajes
+SELECT rideable_type, count(ride_id)
+FROM rides
+GROUP BY 1
+ORDER BY 2 ASC

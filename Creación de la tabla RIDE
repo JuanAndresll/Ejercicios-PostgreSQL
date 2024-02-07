@@ -1,0 +1,27 @@
+#Creación de la tabla
+CREATE TABLE rides (
+    ride_id VARCHAR,
+    rideable_type VARCHAR,
+    started_at TIMESTAMP,
+    ended_at TIMESTAMP,
+    start_station_name VARCHAR,
+    start_station_id VARCHAR,
+    end_station_name VARCHAR,
+    end_station_id VARCHAR,
+    member_casual VARCHAR,
+    ride_duration INT,
+    day_of_week VARCHAR
+);
+
+#CREAR UNA COLUMNA SIMILAR A ride_duration POR EL CALCULO MANUAL DE EL TIEMPO DE LOS VIAJES DERIVADO
+DEL MOMENTO DE INICIO Y FINALIZACIÓN DE LOS RECORRIDOS.
+
+ALTER TABLE rides
+ADD COLUMN diferencia_tiempo INTERVAL;
+UPDATE rides
+SET diferencia_tiempo = ended_at - started_at;
+
+#Y BORRAMOS ride_duration
+
+ALTER TABLE rides
+DROP COLUMN ride_duration;
